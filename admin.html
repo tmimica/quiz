@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<div id="app">
+  <h1>{{title}}</h1>
+  <form>
+    <input v-model="total" placeholder="edit me">
+    <button @click.prevent="getFormValues()">Set total</button>
+    <div>
+      <button @click.prevent="reset()">Reset</button>
+    </div>
+  </form>
+  <p>Message is: {{ total }}</p>
+</div>
+<script>
+
+
+  var app = new Vue({
+    el: "#app",
+    data: {
+      total: "",
+      title: "total:"
+    },
+    methods: {
+      getFormValues () {
+        $.post("/total",
+            {"total" : this._data.total},
+            function(data, status){
+              console.log("Data: " + data + "\nStatus: " + status);
+            });
+      },
+      reset () {
+        $.post("/reset",
+            {},
+            function(data, status){
+              console.log("Data: " + data + "\nStatus: " + status);
+            });
+      }
+    }
+  })
+
+</script>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+  <style>
+    html, body, body > div, form{
+      height: 100%;
+      font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+    }
+    form > div {
+      height: 50%;
+      cursor: pointer;
+      font-size: 10em;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    form.disabled > div {
+      background-color: gray;
+      color: darkgrey;
+    }
+    .ok{
+      background-color: lawngreen;
+    }
+    .notok{
+      background-color: orangered;
+    }
+  </style>
+</head>
+<div id="app">
+  <h1 v-if="!votingEnabled">{{title}}</h1>
+  <form v-if="votingEnabled" v-bind:class="{ disabled: voted }">
+    <div class="ok"  v-if="voted">
+      u voted
+    </div>
+    <div class="ok" @click.prevent="vote(1)">
+      ok
+    </div>
+    <div class="notok" @click.prevent="vote(0)">
+      not ok
+    </div>
+  </form>
+</div>
+<script>
+  var socket = io.connect();
+
+  socket.on('stream', function(data){
+    console.log(">"+data.current   + " "+  data.total);
+    //data = JSON.parse(data);
+    if(data.current == data.total) {
+      app.title = "vote ok: " + data.vote0 + ", notok: " + data.vote1;
+      app.votingEnabled = false
+    }
+    if(data.vote0 == 0 && data.vote1 == 0){
+      app.votingEnabled = true;
+      app.voted = false;
+    }
+  });
+
+  var app = new Vue({
+    el: "#app",
+    data: {
+      voted: false,
+      votingEnabled: true,
+      title: "total:"
+    },
+    methods: {
+      vote (val) {
+        if (!app.voted) {
+          $.post("/vote",
+              {"val": val},
+              function (data, status) {
+                console.log("Data: " + data + "\nStatus: " + status);
+                app.voted = true;
+              });
+        }
+      }
+    }
+  })
+
+</script>
+</html>

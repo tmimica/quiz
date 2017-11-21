@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+  <style>
+    html{
+      height: 100%;
+      font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+    }
+  </style>
+</head>
+<div id="app">
+  <h1 v-if="!votingEnabled">{{title}}</h1>
+  <div id="container"></div>
+</div>
+<script>
+  var socket = io.connect();
+  var i =0;
+
+  socket.on('stream', function(data){
+    console.log(">"+data.current   + " "+  data.total);
+    //data = JSON.parse(data);
+    chart.series[0].setData([data.current, data.total - data.current]);
+    chart.redraw();
+    if(data.current == data.total) {
+      app.title = "vote ok: " + data.vote0 + ", notok: " + data.vote1;
+      app.votingEnabled = false
+    }
+  });
+
+  var app = new Vue({
+    el: "#app",
+    data: {
+      votingEnabled : true,
+      title: "I'm an even uglier signup page. Fix me!"
+    },
+    methods: {
+
+    }
+  })
+
+
+
+
+  chart = Highcharts.chart('container', {
+    chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: null,
+      plotShadow: false,
+      type: 'pie'
+    },
+    title: {
+      text: ''
+    },
+    tooltip: {
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: 'pointer',
+        dataLabels: {
+          enabled: true,
+          format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+          style: {
+            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+          }
+        }
+      }
+    },
+    series: [{
+      name: 'Votes',
+      colorByPoint: true,
+      data: [{
+        name: 'Voted',
+        y: 0
+      }, {
+        name: 'Not voted',
+        y: 100,
+        sliced: true,
+        selected: true
+      }]
+    }]
+  });
+</script>
+</html>
