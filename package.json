@@ -9,7 +9,8 @@
     "update": "npm update --verbose"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "test": "node app.js"
   },
   "dependencies": {
     "socket.io": "^2.0.4"

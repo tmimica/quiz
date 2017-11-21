@@ -18,11 +18,11 @@ app.get('/admin', function(req, res){
   res.sendfile('admin.html');
 });
 
-app.get('/', function(req, res){
+app.get('/dashboard', function(req, res){
   res.sendfile('dashboard.html');
 });
 
-app.get('/client', function(req, res){
+app.get('/', function(req, res){
   res.sendfile('client.html');
 });
 app.get('/add', function(req, res){
